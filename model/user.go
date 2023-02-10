@@ -1,7 +1,8 @@
 package model
 
 import (
-	"miniVersionDouyin/db"
+	"MiniDouyin/db"
+	"MiniDouyin/utils"
 )
 
 type UserRegister struct {
@@ -20,9 +21,9 @@ type user struct {
 func Register(username, password string) int32 {
 	if FindUser(username) == 0 {
 		db.Db.Model(&user{}).Create(map[string]interface{}{"username": username, "password": password})
-		return 0
+		return utils.SUCCESS
 	}
-	return 1
+	return utils.FAIL
 }
 
 // FindUser 查找用户并返回其id

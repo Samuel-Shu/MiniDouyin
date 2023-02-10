@@ -2,6 +2,7 @@ package api
 
 import (
 	"MiniDouyin/model"
+	"MiniDouyin/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
@@ -28,7 +29,7 @@ func Feed(c *gin.Context) {
 	}
 	video := model.VideoLists{
 		Response: model.Response{
-			StatusCode: 0,
+			StatusCode: utils.SUCCESS,
 		},
 		VideoList: demo,
 		NextTime:  int32(time.Now().UnixNano()),
