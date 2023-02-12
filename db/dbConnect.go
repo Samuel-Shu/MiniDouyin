@@ -1,6 +1,8 @@
 package db
 
 import (
+	"MiniDouyin/config"
+	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -11,7 +13,7 @@ var Db *gorm.DB
 var err error
 
 func InitDb() {
-	dsn := "root:sx221410@tcp(localhost:701)/miniversiondouyin?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",config.Name,config.Password,config.DNS,config.DatabasePort,config.DatabaseName)
 	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
 			// 使用单数表名，启用该选项，此时，`User` 的表名应该是 `user`
