@@ -3,6 +3,7 @@ module MiniDouyin
 go 1.16
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang-jwt/jwt/v4 v4.4.3
 	gorm.io/driver/mysql v1.4.6

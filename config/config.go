@@ -12,4 +12,4 @@ var (
 
 //JWT secret Key
 
-var MySigningKey = []byte("tyhngebvfpliyergfgdf")
+var JwtKey = []byte("tyhngebvfpliyergfgdf")
