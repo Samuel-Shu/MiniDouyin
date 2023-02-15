@@ -10,56 +10,83 @@ import (
 )
 
 type UserMsg struct {
-	Status model.Response
-	user   model.User
+	model.Response
+	User   model.User `json:"user"`
 }
-
+// Register 用户注册
 func Register(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-	status := model.UserRegister{}
 	code := model.Register(username, password)
 	if code == utils.SUCCESS {
-		status.Status.StatusCode = code
-		status.Status.StatusMsg = utils.GetStatusMsg(utils.USER_SUCCESS_REGISTER)
-		status.UserId = model.FindUser(username)
-		status.Token = "qwertyui"
+		status := model.UserRegister{
+			Response:model.Response{
+				StatusCode: code,
+				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_REGISTER),
+			},
+			UserId: model.FindUser(username),
+		}
 		fmt.Println("注册成功")
 		c.JSON(http.StatusOK, status)
 	} else {
-		status.Status.StatusCode = utils.FAIL
-		status.Status.StatusMsg = utils.GetStatusMsg(utils.USER_FAIL_REGISTER)
+		status := model.UserRegister{
+			Response: model.Response{
+				StatusCode: utils.FAIL,
+				StatusMsg: utils.GetStatusMsg(utils.USER_FAIL_REGISTER),
+			},
+		}
 		fmt.Println("注册失败")
 		fmt.Println(status)
 		c.JSON(http.StatusOK, status)
 	}
 }
-
+// GetUserData 获取用户信息
 func GetUserData(c *gin.Context) {
-	userMsg := UserMsg{}
 	userId := c.Query("user_id")
 	_ = c.Query("token")
-	userid, _ := strconv.Atoi(userId)
-	user := model.GetUserData(int32(userid))
-	userMsg.user = user
-	userMsg.Status.StatusCode = utils.SUCCESS
-	userMsg.Status.StatusMsg = utils.GetStatusMsg(utils.SUCCESS)
-	c.JSON(http.StatusOK, userMsg)
+	userid,_ := strconv.Atoi(userId)
+	id := int32(userid)
+	if model.FindUserWithId(id){
+		userMsg := UserMsg{
+			Response:model.Response{
+				StatusCode: utils.SUCCESS,
+				StatusMsg: utils.GetStatusMsg(utils.SUCCESS),
+			},
+			User: model.GetUserData(int32(userid)),
+		}
+		c.JSON(http.StatusOK, userMsg)
+	}else {
+		userMsg := UserMsg{
+			Response:model.Response{
+				StatusCode: utils.FAIL,
+				StatusMsg: utils.GetStatusMsg(utils.USER_NOT_EXIT),
+			},
+		}
+		c.JSON(http.StatusOK, userMsg)
+	}
 }
-
+//Login 用户登录
 func Login(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-	user := model.UserRegister{}
 	res := model.Login(username, password)
 	if res {
-		user.Status.StatusCode = utils.SUCCESS
-		user.Status.StatusMsg = utils.GetStatusMsg(utils.USER_SUCCESS_LOGIN)
-		user.UserId = model.FindUser(username)
-		user.Token = "fsfsksdfjk"
+		user := model.UserRegister{
+			Response: model.Response{
+				StatusCode: utils.SUCCESS,
+				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_LOGIN),
+			},
+			UserId: model.FindUser(username),
+		}
+		c.JSON(http.StatusOK, user)
 	} else {
-		user.Status.StatusCode = utils.FAIL
-		user.Status.StatusMsg = utils.GetStatusMsg(utils.USER_FAIL_LOGIN)
+		user := model.UserRegister{
+			Response: model.Response{
+				StatusCode: utils.FAIL,
+				StatusMsg: utils.GetStatusMsg(utils.USER_FAIL_LOGIN),
+			},
+			UserId: 0,
+		}
+		c.JSON(http.StatusOK, user)
 	}
-	c.JSON(http.StatusOK, user)
 }

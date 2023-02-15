@@ -7,7 +7,7 @@ const(
 	USER_SUCCESS_LOGIN int32 = 2101
 	USER_FAIL_REGISTER int32 = 2000
 	USER_FAIL_LOGIN int32 = 2001
-
+	USER_NOT_EXIT int32 = 2002
 	ERROR_TOKEN_EXIST     int32 = 1004
 	ERROR_TOKEN_RUNTIME    int32 = 1005
 	ERROR_TOKEN_WRONG     int32 = 1006
@@ -21,6 +21,7 @@ var StatusMsg = map[int32]string{
 	USER_SUCCESS_LOGIN: "用户登录成功",
 	USER_FAIL_REGISTER: "用户注册失败",
 	USER_FAIL_LOGIN: "用户登录失败",
+	USER_NOT_EXIT: "用户不存在",
 	ERROR_TOKEN_EXIST:      "TOKEN不存在,请重新登陆",
 	ERROR_TOKEN_RUNTIME:    "TOKEN已过期,请重新登陆",
 	ERROR_TOKEN_WRONG:      "TOKEN不正确,请重新登陆",
