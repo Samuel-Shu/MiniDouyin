@@ -1,6 +1,7 @@
 package api
 
 import (
+	"MiniDouyin/config"
 	"MiniDouyin/model"
 	"MiniDouyin/utils"
 	"fmt"
@@ -25,6 +26,7 @@ func Register(c *gin.Context) {
 				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_REGISTER),
 			},
 			UserId: model.FindUser(username),
+			Token: config.Token,
 		}
 		fmt.Println("注册成功")
 		c.JSON(http.StatusOK, status)
@@ -77,13 +79,14 @@ func Login(c *gin.Context) {
 				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_LOGIN),
 			},
 			UserId: model.FindUser(username),
+			Token: config.Token,
 		}
 		c.JSON(http.StatusOK, user)
 	} else {
 		user := model.UserRegister{
 			Response: model.Response{
 				StatusCode: utils.FAIL,
-				StatusMsg: utils.GetStatusMsg(utils.USER_FAIL_LOGIN),
+				StatusMsg: utils.GetStatusMsg(utils.USER_PASSWORD_IS_NOT_CORRECT),
 			},
 			UserId: 0,
 		}

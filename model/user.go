@@ -44,7 +44,7 @@ func FindUser(username string) int32 {
 // FindUserWithId 通过用户id判断用户是否存在
 func FindUserWithId(id int32) bool {
 	user := user{}
-	db.Db.Where("id = ?",id).Select("username",&user)
+	db.Db.Where("id = ?",id).Find(&user).Limit(1)
 	if user.Username==""{
 		return false
 	}
