@@ -18,7 +18,8 @@ type UserMsg struct {
 func Register(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-	code := model.Register(username, password)
+	md5Password := utils.Md5(password)
+	code := model.Register(username, md5Password)
 	if code == utils.SUCCESS {
 		status := model.UserRegister{
 			Response:model.Response{
@@ -71,7 +72,8 @@ func GetUserData(c *gin.Context) {
 func Login(c *gin.Context) {
 	username := c.Query("username")
 	password := c.Query("password")
-	res := model.Login(username, password)
+	md5Password := utils.Md5(password)
+	res := model.Login(username, md5Password)
 	if res {
 		user := model.UserRegister{
 			Response: model.Response{

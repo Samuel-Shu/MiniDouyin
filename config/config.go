@@ -26,3 +26,4 @@ var(
 	Bucket = "douyindemo"
 	Domain = "http://rp8cwyjwy.hn-bkt.clouddn.com"
 )
+

@@ -45,7 +45,7 @@ func VideoPublish(c *gin.Context)  {
 	videoData,err := c.FormFile("data")
 	utils.ResolveError(err)
 	data := model.ParseVideo(videoData)
-	key := fmt.Sprintf("%s.mp4",title)
+	key := fmt.Sprintf("video/%s.mp4",title)
 	code := utils.PushVideo(key,data)
 	if code == utils.SUCCESS{
 		c.JSON(http.StatusOK,model.Response{
