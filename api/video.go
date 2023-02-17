@@ -42,12 +42,15 @@ func Feed(c *gin.Context) {
 // VideoPublish 视频发布
 func VideoPublish(c *gin.Context)  {
 	title := c.PostForm("title")
+	token := c.PostForm("token")
 	videoData,err := c.FormFile("data")
 	utils.ResolveError(err)
+	userId := utils.ParseToken(token)
 	data := model.ParseVideo(videoData)
 	key := fmt.Sprintf("video/%s.mp4",title)
 	code := utils.PushVideo(key,data)
 	if code == utils.SUCCESS{
+		model.PushVideoToMysql(userId,utils.GetVideo(fmt.Sprintf("%s.mp4",title)),"",title)
 		c.JSON(http.StatusOK,model.Response{
 			StatusCode: utils.SUCCESS,
 			StatusMsg: utils.GetStatusMsg(utils.VIDEO_PUSH_SUCCESS),
