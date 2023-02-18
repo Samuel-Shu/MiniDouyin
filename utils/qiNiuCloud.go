@@ -12,14 +12,14 @@ import (
 
 func PushVideo( key string,data []byte) int32 {
 	putPolicy := storage.PutPolicy{
-		Scope: config.Bucket,
+		Scope: config.VideoBucket,
 	}
 	mac := qbox.NewMac(config.AccessKey, config.SecretKey)
 	upToken := putPolicy.UploadToken(mac)
 
 	cfg := storage.Config{}
 	// 空间对应的机房
-	cfg.Region = &storage.ZoneHuanan
+	cfg.Region = &storage.ZoneHuadongZheJiang2
 	// 是否使用https域名
 	cfg.UseHTTPS = true
 	// 上传是否使用CDN上传加速
@@ -45,17 +45,15 @@ func PushVideo( key string,data []byte) int32 {
 }
 
 func GetVideo(key string) string  {
-	accessKey := config.AccessKey
-	secretKey := config.SecretKey
-	mac := qbox.NewMac(accessKey, secretKey)
 	domain := config.Domain
-	deadline := time.Now().Add(time.Second * 3600).Unix() //1小时有效期
+	mac := qbox.NewMac(config.AccessKey,config.SecretKey)
+	deadline := time.Now().Add(time.Second * 3600*24*365).Unix() //1年有效期
 	privateAccessURL := storage.MakePrivateURL(mac, domain, key, deadline)
 	return privateAccessURL
 }
 
 func DeleteVideo()  {
-	bucket := config.Bucket
+	bucket := config.VideoBucket
 	key := "github-x.jpg"
 	accessKey := config.AccessKey
 	secretKey := config.SecretKey

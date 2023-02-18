@@ -17,6 +17,7 @@ const(
 
 	VIDEO_PUSH_SUCCESS int32 = 3000  //VIDEO 类 3xxx
 	VIDEO_PUSH_FAIL int32 = 3001
+	VIDEO_GET_SUCCESS int32 = 3002
 )
 
 var StatusMsg = map[int32]string{
@@ -34,6 +35,7 @@ var StatusMsg = map[int32]string{
 	ERROR_TOKEN_TYPE_WRONG: "TOKEN格式错误,请重新登陆",
 	VIDEO_PUSH_SUCCESS:     "视频上传成功",
 	VIDEO_PUSH_FAIL:        "视频上传失败",
+	VIDEO_GET_SUCCESS:		"视频获取成功",
 }
 
 func GetStatusMsg(code int32) string {
