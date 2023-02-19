@@ -16,7 +16,6 @@ type VideoLists struct {
 	VideoList []Video `json:"video_list"`
 }
 
-
 type video struct {
 	VideoId       int32
 	Id            int32
@@ -25,7 +24,8 @@ type video struct {
 	FavoriteCount int32
 	CommentCount  int32
 	Title         string
-	IsFavorite bool
+	IsFavorite    bool
+	CreateDate    string
 }
 
 // ParseVideo 将*multipart.FileHeader类型转化为 []byte
@@ -52,12 +52,12 @@ func PushVideoToMysql(id int32, playUrl, coverUrl, title string) {
 }
 
 //GetVideo 按照time降序的方式查找config.N个视频信息
-func GetVideo(time string) ([]video,int32){
+func GetVideo(time string) ([]video, int32) {
 	var count int64
 	var video []video
 	db.Db.Where("create_date < ?", time).Limit(config.N).Find(&video).Count(&count)
-	if count >=5{
-		count=5
+	if count >= 5 {
+		count = 5
 	}
-	return video,int32(count)
+	return video, int32(count)
 }

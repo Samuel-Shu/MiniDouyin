@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"strconv"
-	"time"
 )
 
 // Feed 视频feed流
@@ -66,31 +64,35 @@ func VideoPublish(c *gin.Context) {
 }
 
 func Feed(c *gin.Context) {
-	latestTime := c.Query("latest_time")
-	t ,err := time.Parse("2006-01-02 15:04",latestTime)
-	utils.ResolveError(err)
-	videoData,count := model.GetVideo(t.String())
-	videoAndAuthor := make([]model.Video,count)
-	for i := 0; i < int(count); i++ {
-		user := model.GetUserData(videoData[i].Id)
-		videoAndAuthor[i].Id=videoData[i].VideoId
-		videoAndAuthor[i].PlayUrl=videoData[i].PlayUrl
-		videoAndAuthor[i].CoverUrl=videoData[i].CoverUrl
-		videoAndAuthor[i].CommentCount=videoData[i].CommentCount
-		videoAndAuthor[i].FavoriteCount=videoData[i].FavoriteCount
-		videoAndAuthor[i].IsFavorite=videoData[i].IsFavorite
-		videoAndAuthor[i].Title=videoData[i].Title
-		videoAndAuthor[i].Author=user
-	}
-	timeNow, err := strconv.ParseInt(time.Now().Format("2006-01-02 15:04"), 10, 32)
-	utils.ResolveError(err)
-	videoLists := model.VideoLists{
-		Response:model.Response{
-			StatusCode: utils.SUCCESS,
-			StatusMsg: utils.GetStatusMsg(utils.VIDEO_GET_SUCCESS),
-		},
-		NextTime:int32(timeNow) ,
-		VideoList: videoAndAuthor,
-	}
-	c.JSON(http.StatusOK,videoLists)
+	tiemInt := c.Query("latest_time")
+	c.JSON(http.StatusOK,gin.H{
+		"time":tiemInt,
+	})
+	//latestTime := c.Query("latest_time")
+	//t ,err := time.Parse("2006-01-02 15:04",latestTime)
+	//utils.ResolveError(err)
+	//videoData,count := model.GetVideo(t.String())
+	//videoAndAuthor := make([]model.Video,count)
+	//for i := 0; i < int(count); i++ {
+	//	user := model.GetUserData(videoData[i].Id)
+	//	videoAndAuthor[i].Id=videoData[i].VideoId
+	//	videoAndAuthor[i].PlayUrl=videoData[i].PlayUrl
+	//	videoAndAuthor[i].CoverUrl=videoData[i].CoverUrl
+	//	videoAndAuthor[i].CommentCount=videoData[i].CommentCount
+	//	videoAndAuthor[i].FavoriteCount=videoData[i].FavoriteCount
+	//	videoAndAuthor[i].IsFavorite=videoData[i].IsFavorite
+	//	videoAndAuthor[i].Title=videoData[i].Title
+	//	videoAndAuthor[i].Author=user
+	//}
+	//timeNow, err := strconv.ParseInt(time.Now().Format("2006-01-02 15:04"), 10, 32)
+	//utils.ResolveError(err)
+	//videoLists := model.VideoLists{
+	//	Response:model.Response{
+	//		StatusCode: utils.SUCCESS,
+	//		StatusMsg: utils.GetStatusMsg(utils.VIDEO_GET_SUCCESS),
+	//	},
+	//	NextTime:int32(timeNow) ,
+	//	VideoList: videoAndAuthor,
+	//}
+	//c.JSON(http.StatusOK,videoLists)
 }
