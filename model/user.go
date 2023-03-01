@@ -51,7 +51,7 @@ func FindUserWithId(id int32) bool {
 	return true
 }
 //GetUserData 通过传入的id从数据库获取用户信息
-func GetUserData(id int32) User {
+func GetUserData(id  int32) User {
 	user := User{}
 	db.Db.Where("id=?", id).First(&user)
 	return user

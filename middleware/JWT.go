@@ -5,140 +5,83 @@ import (
 	"MiniDouyin/model"
 	"MiniDouyin/utils"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 	"net/http"
-	"strings"
+	"time"
 )
 
-type JWT struct {
-	JwtKey []byte
+type MyClaim struct {
+	UserId   int32
+	UserName string
+	jwt.RegisteredClaims
 }
 
-func NewJWT() *JWT {
-	return &JWT{
-		[]byte(config.JwtKey),
+// GenerateToken Generate generate jwtToken
+func GenerateToken(uerName string, userId int32) string {
+	claim := MyClaim{
+		UserId:   userId,
+		UserName: uerName,
+		RegisteredClaims: jwt.RegisteredClaims{
+			NotBefore: jwt.NewNumericDate(time.Now()),                    //effective time
+			IssuedAt:  jwt.NewNumericDate(time.Now()),                    //sign time
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(3 * time.Hour)), //expire time
+		},
 	}
+	//use HAS256 to sign a jwtToken with claim
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claim)
+	jwtToken, _ := token.SignedString(config.JwtKey)
+	return jwtToken
 }
 
-type MyClaims struct {
-	Username string `json:"username"`
-	jwt.StandardClaims
-}
-
-// 定义错误
-var (
-	TokenExpired     error = errors.New("Token已过期,请重新登录")
-	TokenNotValidYet error = errors.New("Token无效,请重新登录")
-	TokenMalformed   error = errors.New("Token不正确,请重新登录")
-	TokenInvalid     error = errors.New("这不是一个token,请重新登录")
-)
-
-// CreateToken 生成token
-func (j *JWT) CreateToken(claims MyClaims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(j.JwtKey)
-}
-
-// ParserToken 解析token
-func (j *JWT) ParserToken(tokenString string) (*MyClaims, error) {
-	token, err := jwt.ParseWithClaims(tokenString, &MyClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return j.JwtKey, nil
+// ParseToken Parse can parse jwtToken to get Claim's information
+func ParseToken(jwtToken string) (interface{}, error) {
+	claims := MyClaim{}
+	if jwtToken == "" {
+		return nil, errors.New("you don't have valid token")
+	}
+	_, err := jwt.ParseWithClaims(jwtToken, &claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("your alg is not correct,your alg is %v", token.Header["alg"])
+		}
+		return config.JwtKey, nil
 	})
-
 	if err != nil {
-		if ve, ok := err.(*jwt.ValidationError); ok {
-			if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-				return nil, TokenMalformed
-			} else if ve.Errors&jwt.ValidationErrorExpired != 0 {
-				// Token is expired
-				return nil, TokenExpired
-			} else if ve.Errors&jwt.ValidationErrorNotValidYet != 0 {
-				return nil, TokenNotValidYet
-			} else {
-				return nil, TokenInvalid
-			}
-		}
+		return claims,err
 	}
-
-	if token != nil {
-		if claims, ok := token.Claims.(*MyClaims); ok && token.Valid  {
-			return claims, nil
-		}
-		return nil, TokenInvalid
-	}
-
-	return nil, TokenInvalid
+	return claims, nil
 }
 
-// JwtToken jwt中间件
-func JwtToken() gin.HandlerFunc {
+//JWT gin中间件
+func JWT() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		type statusMsg struct {
-			Response model.Response
-			User model.User
+		type TokenData struct {
+			Token string `json:"token" form:"token" binding:"required"`
 		}
-		var code int32
-		tokenHeader := c.Query("token")
-		if tokenHeader == "" {
-			code = utils.FAIL
-			statusMsg := statusMsg{
-				Response: model.Response{
-					StatusCode: code,
+		var tokenData TokenData
+		err := c.ShouldBind(&tokenData)
+		if err != nil{
+			fmt.Println(err)
+		}
+		if tokenData.Token == ""{
+			c.JSON(http.StatusOK, model.Response{
+					StatusCode: utils.FAIL,
 					StatusMsg: utils.GetStatusMsg(utils.ERROR_TOKEN_EXIST),
 				},
-			}
-			c.JSON(http.StatusOK,statusMsg)
+			)
 			c.Abort()
 			return
 		}
-
-		checkToken := strings.Split(tokenHeader, " ")
-		if len(checkToken) == 0 {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-				"message": utils.GetStatusMsg(code),
+		_, err = ParseToken(tokenData.Token)
+		if err != nil{
+			c.JSON(http.StatusOK,model.Response{
+				StatusCode: utils.FAIL,
+				StatusMsg: utils.GetStatusMsg(utils.ERROR_TOKEN_WRONG),
 			})
 			c.Abort()
 			return
 		}
-
-		if len(checkToken) != 2 || checkToken[0] != "Bearer" {
-			c.JSON(http.StatusOK, gin.H{
-				"status":  code,
-				"message": utils.GetStatusMsg(code),
-			})
-			c.Abort()
-			return
-		}
-
-		j := NewJWT()
-		// 解析token
-		claims, err := j.ParserToken(checkToken[1])
-		if err != nil {
-			if err == TokenExpired {
-				statusMsg := statusMsg{
-					Response: model.Response{
-						StatusCode: utils.FAIL,
-						StatusMsg: utils.GetStatusMsg(utils.ERROR_TOKEN_RUNTIME),
-					},
-				}
-				c.JSON(http.StatusOK, statusMsg)
-				c.Abort()
-				return
-			}
-			// 其他错误
-			c.JSON(http.StatusOK, gin.H{
-				"status":  utils.FAIL,
-				"message": err.Error(),
-				"data":    nil,
-			})
-			c.Abort()
-			return
-		}
-
-		c.Set("username", claims)
 		c.Next()
 	}
 }
-

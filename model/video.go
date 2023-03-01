@@ -7,12 +7,15 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"mime/multipart"
+	"strconv"
+	"time"
 )
 
 type VideoLists struct {
 	Response
-	NextTime  int32   `json:"next_time"`
+	NextTime  int64   `json:"next_time"`
 	VideoList []Video `json:"video_list"`
 }
 
@@ -47,17 +50,31 @@ func PushVideoToMysql(id int32, playUrl, coverUrl, title string) {
 		PlayUrl:  playUrl,
 		CoverUrl: coverUrl,
 		Title:    title,
+		CreateDate: time.Now().UTC().Format("2006-01-02 15:04:05"),
 	}
 	db.Db.Create(pushVideoToMysql)
 }
 
 //GetVideo 按照time降序的方式查找config.N个视频信息
-func GetVideo(time string) ([]video, int32) {
+func GetVideo(latestTime string) ([]video, int32) {
 	var count int64
 	var video []video
-	db.Db.Where("create_date < ?", time).Limit(config.N).Find(&video).Count(&count)
-	if count >= 5 {
-		count = 5
+	timeInt, err := strconv.ParseInt(latestTime, 10, 64)
+	if err != nil {
+		log.Fatal(err)
+	}
+	timeStr := time.Unix(timeInt,0).Format("2006-01-02 15:04:05")
+	db.Db.Where("create_date < ?", timeStr).Limit(config.N).Find(&video).Count(&count)
+	if count >= config.N {
+		count = config.N
 	}
 	return video, int32(count)
+}
+
+//GetVideoList 根据user_id查询发布视频列表
+func GetVideoList(userId int32) ([]video,int64) {
+	var videoList []video
+	var count int64
+	db.Db.Where("id=?",userId).Find(&videoList).Count(&count)
+	return videoList,count
 }

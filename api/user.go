@@ -1,6 +1,7 @@
 package api
 
 import (
+	"MiniDouyin/middleware"
 	"MiniDouyin/model"
 	"MiniDouyin/utils"
 	"fmt"
@@ -26,7 +27,7 @@ func Register(c *gin.Context) {
 				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_REGISTER),
 			},
 			UserId: model.FindUser(username),
-			Token: utils.BuildToken(model.FindUser(username),username),
+			Token: middleware.GenerateToken(username,model.FindUser(username)),
 		}
 		fmt.Println("注册成功")
 		c.JSON(http.StatusOK, status)
@@ -45,11 +46,7 @@ func Register(c *gin.Context) {
 // GetUserData 获取用户信息
 func GetUserData(c *gin.Context) {
 	userId := c.Query("user_id")
-	token:= c.Query("token")
 	userid,_ := strconv.Atoi(userId)
-	id := int32(userid)
-	resId := utils.ParseToken(token)
-	if resId==id{
 		userMsg := UserMsg{
 			Response:model.Response{
 				StatusCode: utils.SUCCESS,
@@ -58,16 +55,8 @@ func GetUserData(c *gin.Context) {
 			User: model.GetUserData(int32(userid)),
 		}
 		c.JSON(http.StatusOK, userMsg)
-	}else {
-		userMsg := UserMsg{
-			Response:model.Response{
-				StatusCode: utils.FAIL,
-				StatusMsg: utils.GetStatusMsg(utils.USER_NOT_EXIT),
-			},
-		}
-		c.JSON(http.StatusOK, userMsg)
 	}
-}
+
 //Login 用户登录
 func Login(c *gin.Context) {
 	username := c.Query("username")
@@ -81,7 +70,7 @@ func Login(c *gin.Context) {
 				StatusMsg: utils.GetStatusMsg(utils.USER_SUCCESS_LOGIN),
 			},
 			UserId: model.FindUser(username),
-			Token: utils.BuildToken(model.FindUser(username),username),
+			Token: middleware.GenerateToken(username,model.FindUser(username)),
 		}
 		c.JSON(http.StatusOK, user)
 	} else {

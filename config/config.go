@@ -1,7 +1,6 @@
 package config
 
 //Database connection's config
-
 var (
 	Name = "root"
 	Password = "sx221410"
@@ -10,16 +9,10 @@ var (
 	DatabaseName = "minidouyin"
 )
 
-//JWT secret Key
-
+// JwtKey JWT secret Key
 var JwtKey = []byte("tyhngebvfpliyergfgdf")
 
-//virtual token
-
-var Token = "shuxindouyin"
-
 //Qi Niu cloud config file
-
 var(
 	AccessKey = "XuigBGSCJ7vpAtRtpu04NqLGLXpEROCaqgOxTZ0W"
 	SecretKey = "mhV_z93CyJCcDTmSfU2cSfx_LiejWCjujCCRMuqg"
@@ -29,5 +22,4 @@ var(
 )
 
 //n:a CRUD process can get n video
-
-const N =5
+const N =10

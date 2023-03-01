@@ -14,6 +14,7 @@ type Video struct {
 	CommentCount  int32  `json:"comment_count,omitempty"`
 	IsFavorite    bool   `json:"is_favorite,omitempty"`
 	Title         string `json:"title,omitempty"`
+	CreateDate    string `json:"create_date"`
 }
 
 type Comment struct {
