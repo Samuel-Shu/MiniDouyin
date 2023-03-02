@@ -18,15 +18,16 @@ type Video struct {
 }
 
 type Comment struct {
+	CommentId  int32  `json:"comment_id"`
 	Id         int32  `json:"id,omitempty"`
-	User       User   `json:"user"`
+	VideoId    int32  `json:"video_id"`
 	Content    string `json:"content,omitempty"`
-	CreateDate string `json:"create_date,omitempty"`
+	CreateTime string `json:"create_date,omitempty"`
 }
 
 type User struct {
 	Id            int32  `json:"id,omitempty" gorm:"id"`                        //用户id
-	Username      string `json:"name,omitempty" gorm:"name"`                //用户名称
+	Username      string `json:"name,omitempty" gorm:"name"`                    //用户名称
 	FollowCount   int32  `json:"follow_count,omitempty" gorm:"followcount"`     //关注总数
 	FollowerCount int32  `json:"follower_count,omitempty" gorm:"followercount"` //粉丝总数
 	IsFollow      bool   `json:"is_follow,omitempty" gorm:"isfollow"`           //true--已关注，false--未关注

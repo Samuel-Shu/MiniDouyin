@@ -19,6 +19,12 @@ const (
 	VIDEO_PUSH_FAIL           int32 = 3001
 	VIDEO_GET_SUCCESS         int32 = 3002
 	VIDEO_GIVE_A_LIKE_SUCCESS int32 = 3003
+
+	COMMENT_PUSH_SUCCESS     int32 = 4000
+	COMMENT_LIST_GET_SUCCESS int32 = 4001
+
+	ATTENTION_SUCCESS          int32 = 5000
+	GET_ATTENTION_LIST_SUCCESS       = 5001
 )
 
 var StatusMsg = map[int32]string{
@@ -38,6 +44,10 @@ var StatusMsg = map[int32]string{
 	VIDEO_PUSH_FAIL:              "视频上传失败",
 	VIDEO_GET_SUCCESS:            "视频获取成功",
 	VIDEO_GIVE_A_LIKE_SUCCESS:    "视频点赞成功",
+	COMMENT_PUSH_SUCCESS:         "评论发布成功",
+	COMMENT_LIST_GET_SUCCESS:     "获取评论列表成功",
+	ATTENTION_SUCCESS:            "关注成功",
+	GET_ATTENTION_LIST_SUCCESS:   "获取关注列表成功",
 }
 
 func GetStatusMsg(code int32) string {
