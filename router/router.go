@@ -24,21 +24,23 @@ func InitRouter() {
 	 */
 	interactAPI := r.Group("/douyin")
 	interactAPI.POST("/favorite/action/",middleware.JWT(),api.GiveALikeWithVideo)
-	interactAPI.GET("/favorite/list/",middleware.JWT())
-	interactAPI.POST("/comment/action/",middleware.JWT())
-	interactAPI.GET("/comment/list/")
+	interactAPI.GET("/favorite/list/",middleware.JWT(),api.GetFavoriteVideoList)
+	interactAPI.POST("/comment/action/",middleware.JWT(),api.PublishComment)
+	interactAPI.GET("/comment/list/",api.GetCommentList)
 
 	/*
 	social service:
 	 */
 	socialAPI := r.Group("/douyin")
 	socialAPI.Use(middleware.JWT())
-	socialAPI.POST("/relation/action/")
-	socialAPI.GET("/relation/follow/list/")
-	socialAPI.GET("/relation/follower/list/")
-	socialAPI.GET("/relation/friend/list/")
-	socialAPI.POST("/message/action/")
-	socialAPI.GET("/message/chat/")
+	socialAPI.POST("/relation/action/",api.AttentionAction)
+	socialAPI.GET("/relation/follow/list/",api.GetAttentionList)
+	socialAPI.GET("/relation/follower/list/",api.GetFollowerList)
+	socialAPI.GET("/relation/friend/list/",api.GetFriendList)
+	socialAPI.POST("/message/action/",api.PushMessage)
+	socialAPI.GET("/message/chat/",api.GetMessageChat)
+
+
 	err := r.Run(":8088")
 	if err != nil {
 		panic(err)
