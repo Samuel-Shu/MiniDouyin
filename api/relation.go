@@ -42,7 +42,7 @@ func AttentionAction(c *gin.Context)  {
 func GetAttentionList(c *gin.Context)  {
 	userId := c.Query("user_id")
 	userIdInt ,_ := strconv.Atoi(userId)
-	relation,count := model.GetRelationList(int32(userIdInt))
+	relation,count := model.GetRelationListWithFollower(int32(userIdInt))
 	userList := make([]model.User,count)
 	for i:=0;i<int(count);i++{
 		user := model.GetUserData(relation[i].FollowingId)
@@ -57,12 +57,40 @@ func GetAttentionList(c *gin.Context)  {
 	})
 }
 
-//GetFollowerList todo 获取粉丝列表
+//GetFollowerList  获取粉丝列表
 func GetFollowerList(c *gin.Context)  {
-	
+	userId := c.Query("user_id")
+	userIdInt ,_ := strconv.Atoi(userId)
+	relation,count := model.GetRelationListWithFollowing(int32(userIdInt))
+	userList := make([]model.User,count)
+	for i:=0;i<int(count);i++{
+		user := model.GetUserData(relation[i].FollowingId)
+		userList[i]=user
+	}
+	c.JSON(http.StatusOK,attentionList{
+		Response:model.Response{
+			StatusCode: utils.SUCCESS,
+			StatusMsg: utils.GetStatusMsg(utils.GET_ATTENTION_LIST_SUCCESS),
+		},
+		UserList: userList,
+	})
 }
 
-//GetFriendList todo 获取关注列表
+//GetFriendList  获取好友列表
 func GetFriendList(c *gin.Context)  {
-
+	userId := c.Query("user_id")
+	userIdInt ,_ := strconv.Atoi(userId)
+	relation,count := model.GetRelationListWithFollower(int32(userIdInt))
+	userList := make([]model.User,count)
+	for i:=0;i<int(count);i++{
+		user := model.GetUserData(relation[i].FollowingId)
+		userList[i]=user
+	}
+	c.JSON(http.StatusOK,attentionList{
+		Response:model.Response{
+			StatusCode: utils.SUCCESS,
+			StatusMsg: utils.GetStatusMsg(utils.GET_ATTENTION_LIST_SUCCESS),
+		},
+		UserList: userList,
+	})
 }

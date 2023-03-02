@@ -30,10 +30,18 @@ func DeleteActionToMysql(userId,toUserId int32)  {
 	db.Db.Where("follower_id = ? && following_id = ?",userId,toUserId).Delete(&Relation{})
 }
 
-//GetRelationList 根据user_id来获取关注用户id
-func GetRelationList(userId int32) ([]Relation,int64) {
+// GetRelationListWithFollower  根据user_id来获取关注用户id
+func GetRelationListWithFollower(userId int32) ([]Relation,int64) {
 	var relationList []Relation
 	var count int64
-	db.Db.Where("follower_id = ？",userId).Find(&relationList).Count(&count)
+	db.Db.Where("follower_id = ?",userId).Find(&relationList).Count(&count)
+	return relationList,count
+}
+
+// GetRelationListWithFollowing   根据user_id来获取粉丝用户id
+func GetRelationListWithFollowing(userId int32) ([]Relation,int64) {
+	var relationList []Relation
+	var count int64
+	db.Db.Where("following_id = ？",userId).Find(&relationList).Count(&count)
 	return relationList,count
 }

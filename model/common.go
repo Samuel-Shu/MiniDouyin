@@ -35,6 +35,8 @@ type User struct {
 
 type Message struct {
 	Id         int32  `json:"id,omitempty"`
+	ToUserId   int32  `json:"to_user_id"`
+	FromUserId int32  `json:"from_user_id"`
 	Content    string `json:"content,omitempty"`
 	CreateTime string `json:"create_time,omitempty"`
 }

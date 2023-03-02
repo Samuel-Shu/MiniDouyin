@@ -27,10 +27,16 @@ func VideoPublish(c *gin.Context) {
 
 	data := model.ParseVideo(videoData)
 
-	key := fmt.Sprintf("%s.mp4", title)
-	code := utils.PushVideo(key, data)
-	if code == utils.SUCCESS {
-		model.PushVideoToMysql(userId, utils.GetVideo(fmt.Sprintf("%s.mp4", title)), "", title)
+	keyVideo := fmt.Sprintf("%s.mp4", title)
+	codeVideo := utils.PushVideo(keyVideo, data)
+	playUrl := utils.GetVideo(fmt.Sprintf("%s.mp4", title))
+	coverByte, err := utils.ParseCover(playUrl, 1)
+	keyPicture := fmt.Sprintf("%s.jpg", title)
+	utils.ResolveError(err)
+	codePicture := utils.PushVideoCover(keyPicture, coverByte)
+	coverUrl := utils.GetCover(keyPicture)
+	if codeVideo == utils.SUCCESS && codePicture == utils.SUCCESS {
+		model.PushVideoToMysql(userId, playUrl, coverUrl, title)
 		c.JSON(http.StatusOK, model.Response{
 			StatusCode: utils.SUCCESS,
 			StatusMsg:  utils.GetStatusMsg(utils.VIDEO_PUSH_SUCCESS),
@@ -61,9 +67,9 @@ func Feed(c *gin.Context) {
 		videoAndAuthor[i].CoverUrl = videoData[i].CoverUrl
 		videoAndAuthor[i].CommentCount = videoData[i].CommentCount
 		videoAndAuthor[i].FavoriteCount = videoData[i].FavoriteCount
-		if model.VideoIfFavorite(videoData[i].Id,videoData[i].VideoId){
+		if model.VideoIfFavorite(videoData[i].Id, videoData[i].VideoId) {
 			videoAndAuthor[i].IsFavorite = true
-		}else {
+		} else {
 			videoAndAuthor[i].IsFavorite = false
 		}
 		videoAndAuthor[i].Title = videoData[i].Title
@@ -74,7 +80,7 @@ func Feed(c *gin.Context) {
 	// 确定nextTime的时间戳，后续不存在视频则时间戳为当前时间，存在则为最早投稿的时间戳
 	if count == 0 {
 		timeUnix = time.Now()
-	}else {
+	} else {
 		timeUnix, _ = time.Parse("2006-01-02T15:04:05Z07:00", videoAndAuthor[count-1].CreateDate)
 	}
 
@@ -92,13 +98,13 @@ func Feed(c *gin.Context) {
 }
 
 // GetVideoList 获取用户视频发布列表
-func GetVideoList(c *gin.Context)  {
+func GetVideoList(c *gin.Context) {
 	UserId := c.Query("user_id")
-	userId,err:= strconv.Atoi(UserId)
-	if err !=nil{
+	userId, err := strconv.Atoi(UserId)
+	if err != nil {
 		log.Fatal(userId)
 	}
-	videoData,count :=model.GetVideoList(int32(userId))
+	videoData, count := model.GetVideoList(int32(userId))
 	videoAndAuthor := make([]model.Video, count)
 	for i := 0; i < int(count); i++ {
 		user := model.GetUserData(videoData[i].Id)
@@ -119,5 +125,5 @@ func GetVideoList(c *gin.Context)  {
 		},
 		VideoList: videoAndAuthor,
 	}
-	c.JSON(http.StatusOK,videoLists)
+	c.JSON(http.StatusOK, videoLists)
 }
