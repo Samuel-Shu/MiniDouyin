@@ -35,7 +35,7 @@ func GenerateToken(uerName string, userId int32) string {
 	return jwtToken
 }
 
-// ParseToken Parse can parse jwtToken to get Claim's information
+// ParseToken  can parse jwtToken to get Claim's information
 func ParseToken(jwtToken string) (interface{}, error) {
 	claims := MyClaim{}
 	if jwtToken == "" {
@@ -48,7 +48,7 @@ func ParseToken(jwtToken string) (interface{}, error) {
 		return config.JwtKey, nil
 	})
 	if err != nil {
-		return claims,err
+		return claims, err
 	}
 	return claims, nil
 }
@@ -61,27 +61,39 @@ func JWT() gin.HandlerFunc {
 		}
 		var tokenData TokenData
 		err := c.ShouldBind(&tokenData)
-		if err != nil{
+		if err != nil {
 			fmt.Println(err)
 		}
-		if tokenData.Token == ""{
+		if tokenData.Token == "" {
 			c.JSON(http.StatusOK, model.Response{
-					StatusCode: utils.FAIL,
-					StatusMsg: utils.GetStatusMsg(utils.ERROR_TOKEN_EXIST),
-				},
+				StatusCode: utils.FAIL,
+				StatusMsg:  utils.GetStatusMsg(utils.ERROR_TOKEN_EXIST),
+			},
 			)
 			c.Abort()
 			return
 		}
-		_, err = ParseToken(tokenData.Token)
-		if err != nil{
-			c.JSON(http.StatusOK,model.Response{
+
+		parseToken, err1 := ParseToken(tokenData.Token)
+
+		if err1 != nil {
+			c.JSON(http.StatusOK, model.Response{
 				StatusCode: utils.FAIL,
-				StatusMsg: utils.GetStatusMsg(utils.ERROR_TOKEN_WRONG),
+				StatusMsg:  utils.GetStatusMsg(utils.ERROR_TOKEN_WRONG),
 			})
 			c.Abort()
 			return
 		}
+
+		if !model.FindUserWithId(parseToken.(MyClaim).UserId) {
+			c.JSON(http.StatusOK, model.Response{
+				StatusCode: utils.FAIL,
+				StatusMsg:  utils.GetStatusMsg(utils.ERROR_TOKEN_WRONG),
+			})
+			c.Abort()
+			return
+		}
+
 		c.Next()
 	}
 }
