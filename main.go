@@ -5,7 +5,8 @@ import (
 	"MiniDouyin/router"
 )
 
-func main()  {
+func main() {
 	db.InitDb()
+	db.InitRdb()
 	router.InitRouter()
 }
