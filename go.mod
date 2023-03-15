@@ -8,6 +8,8 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/qiniu/go-sdk/v7 v7.14.0
 	github.com/u2takey/ffmpeg-go v0.4.1
+	google.golang.org/grpc v1.53.0
+	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/mysql v1.4.6
 	gorm.io/gorm v1.24.5
 )

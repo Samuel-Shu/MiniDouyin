@@ -3,7 +3,10 @@ package api
 import (
 	"MiniDouyin/middleware"
 	"MiniDouyin/model"
+	"MiniDouyin/rpc/rpcClient"
+	pb "MiniDouyin/rpc/rpcpb"
 	"MiniDouyin/utils"
+	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -30,10 +33,14 @@ func VideoPublish(c *gin.Context) {
 	keyVideo := fmt.Sprintf("%s.mp4", title)
 	codeVideo := utils.PushVideo(keyVideo, data)
 	playUrl := utils.GetVideo(fmt.Sprintf("%s.mp4", title))
-	coverByte, err := utils.ParseCover(playUrl, 1)
+	ffmpegReq := &pb.FfmpegReq{VideoUrl: playUrl, FrameNum: 1}
+	cover, err1 := rpcClient.Client.ParseCover(context.Background(), ffmpegReq)
+	if err1 != nil {
+		log.Fatal(err)
+	}
 	keyPicture := fmt.Sprintf("%s.jpg", title)
 	utils.ResolveError(err)
-	codePicture := utils.PushVideoCover(keyPicture, coverByte)
+	codePicture := utils.PushVideoCover(keyPicture, cover.CoverByte)
 	coverUrl := utils.GetCover(keyPicture)
 	if codeVideo == utils.SUCCESS && codePicture == utils.SUCCESS {
 		model.PushVideoToMysql(userId, playUrl, coverUrl, title)

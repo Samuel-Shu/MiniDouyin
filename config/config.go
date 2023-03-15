@@ -32,3 +32,5 @@ var (
 
 //n:a CRUD process can get n video
 const N = 10
+
+var RpcDNS = ":8088"
